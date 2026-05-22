@@ -1,0 +1,50 @@
+{
+  "name": "notecast",
+  "type": "module",
+  "version": "0.1.0",
+  "description": "A local engine that enriches raw notes and organizes them into an evolving knowledge graph.",
+  "main": "index.js",
+  "bin": {
+    "notecast": "./src/bin/notes.ts"
+  },
+  "scripts": {
+    "start": "bun --watch src/main.ts",
+    "test": "bun test",
+    "test:watch": "bun test --watch",
+    "cli": "bun src/bin/notes.ts",
+    "notecast": "bun src/bin/notes.ts",
+    "typecheck": "tsc --noEmit",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "lint": "biome lint . --diagnostic-level=error",
+    "lint:full": "biome lint .",
+    "lint:fix": "biome lint . --write",
+    "check": "biome check .",
+    "check:fix": "biome check --write ."
+  },
+  "keywords": [
+    "notes",
+    "knowledge-graph",
+    "zettelkasten",
+    "llm",
+    "local-first",
+    "obsidian",
+    "pkm"
+  ],
+  "author": "Victor Alexandre C Macedo",
+  "license": "MIT",
+  "dependencies": {
+    "@lancedb/lancedb": "^0.27.2",
+    "keyword-extractor": "^0.0.28",
+    "nanoid": "^5.1.9",
+    "sqlite-vec": "^0.1.7-alpha.2",
+    "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.4.10",
+    "@types/node": "^25.3.5",
+    "@types/uuid": "^10.0.0",
+    "bun-types": "latest",
+    "typescript": "^5.9.3"
+  }
+}

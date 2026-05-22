@@ -1,0 +1,16 @@
+.env
+.worktrees/
+dist/
+node_modules/
+.DS_Store
+*.db
+*.db-shm
+*.db-wal
+*.lancedb/
+proposal-*.json
+scripts/__pycache__/
+:memory:/
+.vscode/
+.claude/
+docs/
+CLAUDE.md
