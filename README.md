@@ -6,7 +6,7 @@ Each note is automatically summarized, keyword-extracted, and embedded before it
 
 ### Why Im Building it
 
-I have built it until now because i like to take notes, randomly and for different purposes, but I dislike keeping track of them and also any process other than take the note itself, such as categorize or organize them. Right now the code is not stable, but usable. Might have a lot of bugs and code smells and I am working on it. There are a lot of already planned features that will take this repo closer to the NoteCast I have on paper.
+I have built it until now because i like to take notes, randomly and for different purposes, but I dislike keeping track of them and also any process other than take the note itself, such as categorize or organize them. Right now it is at early stage. Might have a lot of bugs and code smells and I am working on it. There are a lot of already planned features that will take this repo closer to the NoteCast I have on paper.
 
 I appreciate feedbacks and also feel free to use it any ways you'd like.
 
