@@ -11,7 +11,7 @@ import { getStoredKey } from '../../notes-auth';
 import { AnthropicClient } from './anthropic.client';
 import { CodexClient } from './codex.client';
 import { DeepSeekClient } from './deepseek.client';
-import { GeminiClient } from './gemini.client';
+import { GeminiClient, GeminiEmbeddingClient } from './gemini.client';
 import { OllamaClient, OllamaEmbeddingClient } from './ollama.client';
 import { OpenAIClient, OpenAIEmbeddingClient } from './openai.client';
 
@@ -72,6 +72,7 @@ export function createEmbeddingRegistry(
   return {
     ollama: ollamaEmbeddingClient,
     openai: new OpenAIEmbeddingClient(),
+    gemini: new GeminiEmbeddingClient(),
   };
 }
 

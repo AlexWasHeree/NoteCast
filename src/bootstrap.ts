@@ -60,6 +60,7 @@ const EMBEDDING_DIMS: Partial<Record<string, number>> = {
   // providers (fallback)
   openai: 1536,
   ollama: 768,
+  gemini: 768,
   // models (checked first — more specific)
   'nomic-embed-text': 768,
   'mxbai-embed-large': 1024,
@@ -69,6 +70,8 @@ const EMBEDDING_DIMS: Partial<Record<string, number>> = {
   'text-embedding-3-small': 1536,
   'text-embedding-3-large': 3072,
   'text-embedding-ada-002': 1536,
+  'text-embedding-004': 768,
+  'gemini-embedding-001': 768,
 };
 
 type CreateAppOptions = {
