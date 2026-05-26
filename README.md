@@ -254,6 +254,8 @@ Each key is optional — omit a step to inherit `defaultProvider`. The five conf
 
 `embedding` only accepts `provider` and `model` (no temperature or token limit).
 
+> **Embedding provider support:** only `ollama`, `openai`, and `gemini` have embedding clients. `anthropic`, `deepseek`, and `codex` have no public embedding API — if any of them is set as `embedding.provider` (or as `defaultProvider` with no embedding override), the system silently falls back to `ollama` (`nomic-embed-text`). Default models: Ollama → `nomic-embed-text` (768 dims), OpenAI → `text-embedding-3-small` (1536 dims), Gemini → `text-embedding-004` (768 dims).
+
 **Override individual steps** (e.g. local embeddings + cloud for scans):
 
 ```bash
