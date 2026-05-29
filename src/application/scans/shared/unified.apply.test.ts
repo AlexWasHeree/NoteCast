@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import type { Note } from '../../../domain/note/note.entity';
 import type { UnifiedProposal } from '../../../domain/scan/unified.proposal';
+import { emptyUnifiedProposal } from '../../../domain/scan/unified.proposal';
 import type { Theme } from '../../../domain/theme/theme.entity';
 import {
   InMemoryNoteRepository,
@@ -259,5 +260,65 @@ describe('applyUnifiedProposal — addParents', () => {
     const result = await applyUnifiedProposal(proposal, noteRepo, themeRepo);
     expect(result.addParentsApplied).toBe(0);
     expect(result.skipped).toBe(1);
+  });
+});
+
+describe('applyUnifiedProposal — merges', () => {
+  test('re-parents children of source theme to target theme', async () => {
+    const themeRepo = new InMemoryThemeRepository();
+    const noteRepo = new InMemoryNoteRepository();
+    await themeRepo.save(makeTheme('src', 'Source', [], []));
+    await themeRepo.save(makeTheme('tgt', 'Target', [], []));
+    await themeRepo.save(makeTheme('child', 'Child', [], ['src']));
+
+    const proposal = {
+      ...emptyUnifiedProposal(),
+      merges: [{ sourceThemeId: 'src', targetThemeId: 'tgt' }],
+    };
+    await applyUnifiedProposal(proposal, noteRepo, themeRepo);
+
+    const child = await themeRepo.findById('child');
+    expect(child?.parentIds).not.toContain('src');
+    expect(child?.parentIds).toContain('tgt');
+  });
+
+  test('child with multiple parents: source replaced by target, others kept', async () => {
+    const themeRepo = new InMemoryThemeRepository();
+    const noteRepo = new InMemoryNoteRepository();
+    await themeRepo.save(makeTheme('src', 'Source', [], []));
+    await themeRepo.save(makeTheme('tgt', 'Target', [], []));
+    await themeRepo.save(makeTheme('other', 'Other', [], []));
+    await themeRepo.save(makeTheme('child', 'Child', [], ['src', 'other']));
+
+    const proposal = {
+      ...emptyUnifiedProposal(),
+      merges: [{ sourceThemeId: 'src', targetThemeId: 'tgt' }],
+    };
+    await applyUnifiedProposal(proposal, noteRepo, themeRepo);
+
+    const child = await themeRepo.findById('child');
+    expect(child?.parentIds).not.toContain('src');
+    expect(child?.parentIds).toContain('tgt');
+    expect(child?.parentIds).toContain('other');
+  });
+
+  test('merge without children moves notes and removes source', async () => {
+    const themeRepo = new InMemoryThemeRepository();
+    const noteRepo = new InMemoryNoteRepository();
+    await themeRepo.save(makeTheme('src', 'Source', ['n1'], []));
+    await themeRepo.save(makeTheme('tgt', 'Target', [], []));
+    await noteRepo.save(makeNote('n1', 'organized', ['src']));
+
+    const proposal = {
+      ...emptyUnifiedProposal(),
+      merges: [{ sourceThemeId: 'src', targetThemeId: 'tgt' }],
+    };
+    const result = await applyUnifiedProposal(proposal, noteRepo, themeRepo);
+
+    expect(result.themesMerged).toBe(1);
+    expect(await themeRepo.findById('src')).toBeNull();
+    const note = await noteRepo.findById('n1');
+    expect(note?.themeIds).toContain('tgt');
+    expect(note?.themeIds).not.toContain('src');
   });
 });

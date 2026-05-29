@@ -374,9 +374,17 @@ export class SQLiteThemeRepository implements IThemeRepository {
   }
 
   async delete(id: string): Promise<void> {
+    const childCount = this.db
+      .query('SELECT COUNT(*) as n FROM theme_parents WHERE parent_id = ?')
+      .get(id) as { n: number };
+    if (childCount.n > 0) {
+      throw new Error(
+        `Cannot delete theme ${id}: it has ${childCount.n} child(ren). Re-parent them first.`,
+      );
+    }
     this.db.transaction(() => {
       this.db.run('DELETE FROM note_themes WHERE theme_id = ?', [id]);
-      this.db.run('DELETE FROM theme_parents WHERE child_id = ? OR parent_id = ?', [id, id]);
+      this.db.run('DELETE FROM theme_parents WHERE child_id = ?', [id]);
       this.db.run('DELETE FROM themes WHERE id = ?', [id]);
     })();
     await this.vectorStore.deleteThemeVector(id);

@@ -25,6 +25,10 @@ export class InMemoryThemeRepository implements IThemeRepository {
     this.themes.set(theme.id, theme);
   }
   async delete(id: string): Promise<void> {
+    const hasChildren = Array.from(this.themes.values()).some((t) => t.parentIds.includes(id));
+    if (hasChildren) {
+      throw new Error(`Cannot delete theme ${id}: it has children. Re-parent them first.`);
+    }
     this.themes.delete(id);
   }
   async deleteAll(): Promise<number> {

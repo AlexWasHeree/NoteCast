@@ -103,8 +103,6 @@ export async function applyUnifiedProposal(
   }
 
   // 2. Removals (empty themes only — skip if has notes or children)
-  const currentThemes = await themeRepository.findAll();
-  const hasChildrenSet = new Set(currentThemes.flatMap((t) => t.parentIds));
   for (const themeId of proposal.removals) {
     const theme = await themeRepository.findById(themeId);
     if (!theme) {
@@ -115,7 +113,9 @@ export async function applyUnifiedProposal(
       skipped++;
       continue;
     }
-    if (hasChildrenSet.has(themeId)) {
+    // Fresh per-iteration check guards against concurrent parent additions since the last findAll
+    const allCurrent = await themeRepository.findAll();
+    if (allCurrent.some((t) => t.parentIds.includes(themeId))) {
       skipped++;
       continue;
     }
@@ -179,6 +179,14 @@ export async function applyUnifiedProposal(
         .filter((id) => id !== sourceTheme.id)
         .concat(targetTheme.id);
       await noteRepository.update({ ...note, themeIds: [...new Set(updatedThemeIds)] });
+    }
+    // Re-parent children of source to target before deleting source
+    const allForReparent = await themeRepository.findAll();
+    for (const t of allForReparent) {
+      if (!t.parentIds.includes(sourceTheme.id)) continue;
+      const newParentIds = t.parentIds.filter((p) => p !== sourceTheme.id);
+      if (!newParentIds.includes(targetTheme.id)) newParentIds.push(targetTheme.id);
+      await themeRepository.update({ ...t, parentIds: newParentIds });
     }
     await themeRepository.delete(sourceTheme.id);
     themeMap.delete(sourceTheme.id);

@@ -409,12 +409,19 @@ describe('SQLiteThemeRepository', () => {
     expect(noteRows).toHaveLength(0);
   });
 
-  test('deleting parent removes its theme_parents entries', async () => {
+  test('delete throws when theme has children to prevent silent DAG corruption', async () => {
     await themeRepo.save(makeTheme('parent'));
     await themeRepo.save(makeTheme('child', { parentIds: ['parent'] }));
-    await themeRepo.delete('parent');
-    const child = await themeRepo.findById('child');
-    expect(child?.parentIds).not.toContain('parent');
+    await expect(themeRepo.delete('parent')).rejects.toThrow(/child/i);
+    expect(await themeRepo.findById('parent')).not.toBeNull();
+  });
+
+  test('delete succeeds after children are re-parented', async () => {
+    await themeRepo.save(makeTheme('parent'));
+    await themeRepo.save(makeTheme('child', { parentIds: ['parent'] }));
+    await themeRepo.update(makeTheme('child', { parentIds: [] }));
+    await expect(themeRepo.delete('parent')).resolves.toBeUndefined();
+    expect(await themeRepo.findById('parent')).toBeNull();
   });
 });
 
